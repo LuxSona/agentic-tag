@@ -1,0 +1,2 @@
+# For Agents
+VISIBLE_RADIUS = 100
