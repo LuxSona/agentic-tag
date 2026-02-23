@@ -1,2 +1,8 @@
 # For Agents
 VISIBLE_RADIUS = 100
+
+#For Worlds
+DEFAULT_WORLD_SIZE = (1000,1000)
+
+#For simulations
+DEFAULT_NUM_AGENTS = 50
