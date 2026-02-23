@@ -8,13 +8,19 @@ class boundingBox():
         self.max = center + size/2
     
     def contains(self, point):
-        return np.all(point >= self.min) and np.all(point <= self.max)
+        position = point.position if isinstance(point, Point) else point
+
+        return (self.min[0] <= position[0] <= self.max[0]) and (self.min[1] <= position[1] <= self.max[1])
     
     def intersects(self, boundingBox):
         return not (boundingBox.max[0] < self.min[0] or boundingBox.min[0] > self.max[0] or boundingBox.max[1] < self.min[1] or boundingBox.min[1] > self.max[1])
 
 
 
+class Point():
+    def __init__(self, position, data=None):
+        self.position = position
+        self.data = data
 
 class QuadTree():
     def __init__(self, boundary, capacity):
@@ -48,13 +54,14 @@ class QuadTree():
         self.divided = True
     
     def queryFromPoint(self, point, radius, found):
+        point = point.position if isinstance(point, Point) else point
         boundary = boundingBox(point, radius)
         found = self.query(boundary, found)
         return found
 
     def query(self, query_range, found):
         if not self.boundary.intersects(query_range):
-            return
+            return []
         else:
             for p in self.points:
                 if query_range.contains(p):
@@ -91,19 +98,15 @@ class QuadTree():
 
 
 def debug():
-
-    #Test a simple case of inserting points and querying.
-    boundary = boundingBox(np.array([0,0]), np.array([200,200]))
+    # Random points
+    points = [Point(np.random.rand(2) * 100) for _ in range(100)]
+    boundary = boundingBox(np.array([50, 50]), np.array([100, 100]))
     qt = QuadTree(boundary, 4)
-    #Generate a hundred random points within the boundary and insert them into the quadtree.
-    points = [np.random.rand(2) * 200 - 100 for _ in range(100)]
-
     for p in points:
         qt.insert(p)
-    
-    #Example: Query for points within a point centered at (25,25) with a radius of 20.
-    foundPoints = qt.queryFromPoint(np.array([25,25]), 20, [])
-    print("Found points:", foundPoints)
+    query_point = Point(np.array([50, 50]))
+    found_points = qt.queryFromPoint(query_point, 20, [])
+    print(f"Found {len(found_points)} points within radius 20 of {query_point.position}")
 
 if __name__ == "__main__":
     debug()
