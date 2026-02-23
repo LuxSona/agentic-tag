@@ -64,8 +64,7 @@ class QuadTree():
                 self.northeast.query(query_range, found)
                 self.southwest.query(query_range, found)
                 self.southeast.query(query_range, found)
-        return found
-    
+        return found        
 
     def insert(self, point):
         if not self.boundary.contains(point):
