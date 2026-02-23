@@ -49,6 +49,7 @@ class SimulationController():
         self.updateAgentMovements()
         #Handle interactions between agents.
         self.updateItStatus()
+        logger.info(f"IT agent is {self.it.id}")
     
     def updateItStatus(self):
         #Check neighbors of the it agent. If any are within the tagging radius, they become it and the old it agent is no longer it.
@@ -63,6 +64,7 @@ class SimulationController():
                 neighbor.it = True
                 self.it.it = False
                 self.it = neighbor
+                print(self.it.id)
                 break
 
     
