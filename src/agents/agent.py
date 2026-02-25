@@ -14,6 +14,7 @@ class Agent():
         self.velocity = 1
         #Reference to world.
         self.world = world
+        self.hasBeenTagged = False
     
     def requestMove(self):
         #LOGGING: If the agent has a heading of (0,0), log a warning that the agent is not moving.
@@ -63,12 +64,14 @@ class Agent():
             closestNeighbor = None
             closestDistance = float("inf")
             for neighbor in neighbors:
-                if neighbors is self:
+                if neighbor is self or neighbor.it:
                     pass
                 else:
                     closestNeighbor = neighbor if np.linalg.norm(neighbor.position - self.position) < closestDistance else closestNeighbor
-            
-
+            if closestNeighbor is None:
+                self.heading += (np.random.rand(2) - 0.5) * 0.1
+                self.heading = self.heading / np.linalg.norm(self.heading)
+                return
             #Choose that neighbor and run towards them. If linalg.norm is 0, just pick a random direction, the agent is on top of the neighbor and should be able to tag them (which is handled in the simulation controller).
             if np.linalg.norm(closestNeighbor.position - self.position) == 0:
                 self.heading = np.random.rand(2) - 0.5

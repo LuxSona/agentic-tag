@@ -31,11 +31,11 @@ class SimulationController():
         #Randomly choose one agent to be it at the start.
         randomItAgent = np.random.choice(self.agents)
         randomItAgent.it = True
-        self.it = randomItAgent
+        self.it = [randomItAgent]
 
     def regenerateQuadtree(self):
         #Make a new quadtree and reinsert all agents based on their new positions.
-        boundary = quadtree.boundingBox(np.array([0,0]), np.array(self.worldSize))
+        boundary = quadtree.boundingBox(np.array(self.worldSize)/2, np.array(self.worldSize))
         self.qt = quadtree.QuadTree(boundary, 4)
         for agent in self.world.agents:
             self.qt.insert(quadtree.Point(agent.position, data=agent))
@@ -49,23 +49,22 @@ class SimulationController():
         self.updateAgentMovements()
         #Handle interactions between agents.
         self.updateItStatus()
-        logger.info(f"IT agent is {self.it.id}")
     
     def updateItStatus(self):
         #Check neighbors of the it agent. If any are within the tagging radius, they become it and the old it agent is no longer it.
-        neighbors = self.world.getNeighbors(self.it.position, radius=constants.VISIBLE_RADIUS)
-        for neighbor in neighbors:
-            logger.info(f"Neighbor position: {neighbor.position}, It Position: {self.it.position}")
-            if neighbor is self.it:
-                pass 
-            if neighbor != self.it and np.linalg.norm(neighbor.position - self.it.position) <= constants.TAGGING_RADIUS:
-                #Tagging occurs! Neighbor becomes it, old it is no longer it.
-                logger.info(f"Tick {self.currentTick}: Agent {self.it.id} tagged Agent {neighbor.id}.")
-                neighbor.it = True
-                self.it.it = False
-                self.it = neighbor
-                print(self.it.id)
-                break
+        for it in self.it:
+            neighbors = self.world.getNeighbors(it.position, radius=constants.VISIBLE_RADIUS)
+            for neighbor in neighbors:
+                logger.info(f"Neighbor position: {neighbor.position}, It Position: {it.position}")
+                if neighbor in self.it:
+                    pass 
+                if neighbor not in self.it and np.linalg.norm(neighbor.position - it.position) <= constants.TAGGING_RADIUS:
+                    #Tagging occurs! Neighbor becomes it, old it is no longer it.
+                    logger.info(f"Tick {self.currentTick}: Agent {it.id} tagged Agent {neighbor.id}.")
+                    neighbor.it = True
+                    self.it.append(neighbor)
+                    print(it.id)
+                    break
 
     
     def updateAgentMovements(self):
